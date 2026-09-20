@@ -152,208 +152,39 @@ function applyAgentPresence(login, loggedIn, lastSeen = Date.now()) {
 // APLICA O ESTADO COMPLETO DE PRESENÇA
 // ============================================================
 
-function applyAuthState(state) {
-  if (!state) return;
+let presenceLoading = false;
+let nextPresenceCheck = 0;
 
-  agents.forEach((agent) => {
-
-    const session = state[agent.login];
-
-    const isOnline =
-      session &&
-      session.loggedIn === true &&
-      session.lastSeen &&
-      Date.now() -
-        Number(session.lastSeen) <=
-        PLAYER_HEARTBEAT_TIMEOUT;
-
-    applyAgentPresence(
-      agent.login,
-      !!isOnline,
-      isOnline
-        ? Number(session.lastSeen)
-        : 0
-    );
-
-  });
+// Local browser notifications only request a fresh server snapshot.
+function applyAuthState() { checkPlayerPresence(); }
+function handlePlayerAuth() {
+  nextPresenceCheck = 0;
+  checkPlayerPresence();
 }
 
-
-// ============================================================
-// RECEBE EVENTOS EM TEMPO REAL
-// ============================================================
-
-function handlePlayerAuth(payload) {
-  if (!payload) return;
-
-  // Evento completo vindo do localStorage.
-  if (
-    payload.type === "auth-state"
-  ) {
-    applyAuthState(payload.state);
-    return;
-  }
-
-  if (!payload.login) return;
-
-  switch (payload.type) {
-
-    case "agent-login":
-
-      applyAgentPresence(
-        payload.login,
-        true,
-        Number(
-          payload.timestamp || Date.now()
-        )
-      );
-
-      break;
-
-
-    case "agent-heartbeat": {
-
-      const agent = agents.find(
-        (a) => a.login === payload.login
-      );
-
-      if (!agent) return;
-
-      agent.loggedIn = true;
-      agent.lastSeen =
-        Number(
-          payload.timestamp || Date.now()
-        );
-
-      if (
-        agent.dispatchStatus === "offline"
-      ) {
-        agent.dispatchStatus =
-          "disponivel";
-
-        renderAgents();
-        renderMap();
-        syncPlayers();
-      }
-
-      break;
+async function checkPlayerPresence() {
+  if (!session?.token || presenceLoading || Date.now() < nextPresenceCheck) return;
+  presenceLoading = true;
+  nextPresenceCheck = Date.now() + 3000;
+  try {
+    const response = await fetch(API_BASE_URL + "/Agents/presence", {
+      headers: { Authorization: "Bearer " + session.token }, cache: "no-store"
+    });
+    if (!response.ok) throw new Error("Consulta de presença recusada (" + response.status + ").");
+    const roster = await response.json();
+    if (!Array.isArray(roster)) throw new Error("Resposta de presença inválida.");
+    for (const remote of roster) {
+      const agent = agents.find(a => String(a.login || "").toLowerCase() === String(remote.login || "").toLowerCase());
+      if (!agent) continue;
+      agent.backendId = remote.id;
+      agent.isNpc = remote.isNpc === true;
+      applyAgentPresence(agent.login, remote.loggedIn === true);
     }
-
-
-    case "agent-logout":
-
-      applyAgentPresence(
-        payload.login,
-        false,
-        0
-      );
-
-      break;
-  }
-}
-
-
-// ============================================================
-// VERIFICA HEARTBEATS EXPIRADOS
-// ============================================================
-
-function checkPlayerPresence() {
-
-  // Primeiro consulta o estado persistente.
-  if (
-    typeof sdnCleanupExpiredSessions ===
-    "function"
-  ) {
-    sdnCleanupExpiredSessions();
-  }
-
-  if (
-    typeof sdnGetAuthState !==
-    "function"
-  ) {
-    return;
-  }
-
-  const state =
-    sdnGetAuthState();
-
-  let changed = false;
-
-  agents.forEach((agent) => {
-
-    const session =
-      state[agent.login];
-
-    const isOnline =
-      session &&
-      session.loggedIn === true &&
-      session.lastSeen &&
-      Date.now() -
-        Number(session.lastSeen) <=
-        PLAYER_HEARTBEAT_TIMEOUT;
-
-    if (isOnline) {
-
-      const newLastSeen =
-        Number(session.lastSeen);
-
-      if (
-        !agent.loggedIn ||
-        agent.lastSeen !== newLastSeen
-      ) {
-
-        const wasLoggedIn =
-          agent.loggedIn;
-
-        agent.loggedIn = true;
-        agent.lastSeen =
-          newLastSeen;
-
-        if (
-          agent.dispatchStatus ===
-          "offline"
-        ) {
-          agent.dispatchStatus =
-            "disponivel";
-        }
-
-        if (!wasLoggedIn) {
-          pushLog(
-            `${agent.name} restabeleceu conexão com a rede.`,
-            "success"
-          );
-        }
-
-        changed = true;
-      }
-
-    } else if (agent.loggedIn) {
-
-      agent.loggedIn = false;
-      agent.lastSeen = 0;
-
-      if (
-        agent.dispatchStatus !== "campo" &&
-        agent.dispatchStatus !== "descansando"
-      ) {
-        agent.dispatchStatus =
-          "offline";
-      }
-
-      pushLog(
-        `${agent.name} perdeu conexão com a rede.`,
-        "fail"
-      );
-
-      changed = true;
-    }
-
-  });
-
-  if (changed) {
-    renderAgents();
-    renderMap();
-    syncPlayers();
+  } catch (error) {
+    // A network failure must not turn everybody offline.
+    console.warn("SDN-VIGIA: não foi possível atualizar a presença:", error);
+  } finally {
+    presenceLoading = false;
   }
 }
 
@@ -2053,4 +1884,3 @@ async function fetchAvailableMissions() {
 
   document.addEventListener("DOMContentLoaded", init);
 })();
-
