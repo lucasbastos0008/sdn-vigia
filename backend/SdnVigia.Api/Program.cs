@@ -7,8 +7,6 @@ using SdnVigia.Api.Services;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
-
-builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 
 builder.Services.AddSwaggerGen(options =>
@@ -32,9 +30,7 @@ builder.Services.AddSwaggerGen(options =>
 
 builder.Services.AddDbContext<SdnVigiaDbContext>(options =>
     options.UseNpgsql(
-        builder.Configuration.GetConnectionString(
-            "DefaultConnection"
-        )
+        builder.Configuration.GetConnectionString("DefaultConnection")
     )
 );
 
@@ -44,20 +40,15 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("Frontend", policy =>
     {
-        policy
-            .AllowAnyOrigin()
-            .AllowAnyHeader()
-            .AllowAnyMethod();
+        policy.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod();
     });
 });
 
 var app = builder.Build();
 
 app.UseCors("Frontend");
-
 app.UseDefaultFiles();
 app.UseStaticFiles();
-
 app.UseMiddleware<SessionAuthenticationMiddleware>();
 
 if (app.Environment.IsDevelopment())
@@ -67,16 +58,13 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
 app.MapControllers();
-
 app.MapFallbackToFile("login.html");
 
 using (var scope = app.Services.CreateScope())
 {
-    var context = scope.ServiceProvider
-        .GetRequiredService<SdnVigiaDbContext>();
-
+    var context = scope.ServiceProvider.GetRequiredService<SdnVigiaDbContext>();
+    await context.Database.EnsureCreatedAsync();
     await DbSeeder.SeedAsync(context);
 }
 
