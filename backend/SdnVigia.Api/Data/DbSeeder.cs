@@ -1,4 +1,4 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
 using SdnVigia.Api.Models;
 
@@ -280,6 +280,20 @@ public static class DbSeeder
     };
 
             await context.Users.AddRangeAsync(users);
+            await context.SaveChangesAsync();
+        }
+        var hasOperations = await context.Operations.AnyAsync();
+
+        if (!hasOperations)
+        {
+            context.Operations.Add(new Operation
+            {
+                Name = "OPERAÇÃO PRINCIPAL",
+                Status = "em_andamento",
+                StartedAt = DateTime.UtcNow,
+                CreatedAt = DateTime.UtcNow
+            });
+
             await context.SaveChangesAsync();
         }
     }
