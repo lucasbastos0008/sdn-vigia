@@ -4,6 +4,51 @@
 
 const PROFICIENCY_BONUS = 4;
 
+// Compact, read-only agent reference shared by both screens.
+function showAgentProfile(agent) {
+  if (!agent) return;
+  document.getElementById("agentProfileDialog")?.close();
+  const dialog = document.createElement("dialog");
+  dialog.id = "agentProfileDialog";
+  dialog.setAttribute("aria-labelledby", "agentProfileTitle");
+  dialog.style.cssText = "width:min(560px,90vw);max-height:80vh;overflow:auto;background:#081a14;color:#c9decc;border:1px solid #6f9e79;padding:24px;box-shadow:0 12px 60px #000;font:inherit;";
+  const title = document.createElement("h2");
+  title.id = "agentProfileTitle";
+  title.textContent = agent.name;
+  title.style.color = "#48ff86";
+  dialog.append(title);
+  const section = (label, value) => {
+    const heading = document.createElement("h3");
+    heading.textContent = label;
+    const text = document.createElement("p");
+    text.textContent = value || "Não informado";
+    text.style.cssText = "line-height:1.6;white-space:pre-wrap;";
+    dialog.append(heading, text);
+  };
+  section("Especialidade / poder", agent.especialidade);
+  const labels = {combate:"Combate",mobilidade:"Mobilidade",vigor:"Vigor",intelecto:"Intelecto",carisma:"Carisma"};
+  section("Habilidades", Object.entries(labels).map(([key,label]) => {
+    const value = Number(agent.mods?.[key] || 0);
+    return label + ": " + (value >= 0 ? "+" : "") + value;
+  }).join(" · "));
+  section("Perícias", (agent.pericias || []).join(", "));
+  section("Condição", statusLabel(combinedStatus(agent)) + " · " + agent.hpCurrent + "/" + agent.hpMax + " PV");
+  const close = document.createElement("button");
+  close.type = "button";
+  close.textContent = "FECHAR FICHA";
+  close.addEventListener("click", () => dialog.close());
+  dialog.append(close);
+  dialog.addEventListener("click", event => { if (event.target === dialog) {
+    const r=dialog.getBoundingClientRect();
+    if(event.clientX<r.left || event.clientX>r.right || event.clientY<r.top || event.clientY>r.bottom) dialog.close();
+  }});
+  dialog.addEventListener("close", () => dialog.remove(), {once:true});
+  document.body.append(dialog);
+  dialog.showModal();
+  close.focus();
+}
+
+
 // Ritmo automático do ciclo de missão (em minutos), controlado pelo dispatcher.js:
 // - arrivalIntervalMin: intervalo entre uma missão aparecer e a próxima aparecer
 // - complicationDelayMin: quanto tempo depois do despacho a complicação surge sozinha
@@ -240,7 +285,8 @@ function healthStatus(agent) {
 
 function combinedStatus(agent) {
   if (
-    agent.loggedIn !== true
+    typeof sdnIsAgentLoggedIn === "function" &&
+    !sdnIsAgentLoggedIn(agent.login)
   ) {
     return "offline";
   }
