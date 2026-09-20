@@ -211,9 +211,21 @@ document.addEventListener("visibilitychange", () => {
 // ENCERRAMENTO DA SESSÃO
 // =========================================================
 
-function logoutPlayer() {
+async function logoutPlayer() {
   if (!playerSession) {
     redirectToLogin();
+    return;
+  }
+
+  // Confirm logout on the server before discarding the token locally.
+  try {
+    const response = await fetch((window.SDN_API_BASE_URL || "/api") + "/Auth/logout", {
+      method: "POST", headers: { Authorization: "Bearer " + session.token },
+      signal: AbortSignal.timeout(10000)
+    });
+    if (!response.ok && response.status !== 401) throw new Error("Logout recusado.");
+  } catch (error) {
+    window.alert("Não foi possível sair da rede. Verifique a conexão e tente novamente.");
     return;
   }
 
