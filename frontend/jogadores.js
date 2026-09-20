@@ -211,21 +211,9 @@ document.addEventListener("visibilitychange", () => {
 // ENCERRAMENTO DA SESSÃO
 // =========================================================
 
-async function logoutPlayer() {
+function logoutPlayer() {
   if (!playerSession) {
     redirectToLogin();
-    return;
-  }
-
-  // Confirm logout on the server before discarding the token locally.
-  try {
-    const response = await fetch((window.SDN_API_BASE_URL || "/api") + "/Auth/logout", {
-      method: "POST", headers: { Authorization: "Bearer " + session.token },
-      signal: AbortSignal.timeout(10000)
-    });
-    if (!response.ok && response.status !== 401) throw new Error("Logout recusado.");
-  } catch (error) {
-    window.alert("Não foi possível sair da rede. Verifique a conexão e tente novamente.");
     return;
   }
 
@@ -330,6 +318,7 @@ async function logoutPlayer() {
           <div class="roster-card-name">
             ${escapeHtml(a.name)}
           </div>
+          <button type="button" class="secondary" style="font-size:10px;padding:4px;width:100%">FICHA</button>
         </li>
       `;
     }).join("");
@@ -841,6 +830,11 @@ async function logoutPlayer() {
   }
 
   const logoutButton = $("#logoutPlayer");
+
+  $("#agentList")?.addEventListener("click", event => {
+    const card = event.target.closest(".player-roster-card");
+    if (card) showAgentProfile(lastState.agents.find(a => a.login === card.dataset.agentLogin));
+  });
 
   if (logoutButton) {
     logoutButton.addEventListener("click", () => {
