@@ -29,6 +29,26 @@ public class AgentsController : ControllerBase
         return Ok(agents);
     }
 
+    // Presence comes from server sessions, shared by every computer.
+    [HttpGet("presence")]
+    [RequireAuthentication]
+    [ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
+    public async Task<IActionResult> GetPresence()
+    {
+        var now = DateTime.UtcNow;
+        var activeIds = await _context.Sessions.AsNoTracking()
+            .Where(s => s.AgentId != null && s.ExpiresAt > now)
+            .Select(s => s.AgentId!.Value).Distinct().ToListAsync();
+        var roster = await _context.Agents.AsNoTracking().ToListAsync();
+        var npcLogins = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+            { "damadeprata", "sara", "forjaceu", "filon", "polux" };
+        return Ok(roster.Select(a => new {
+            a.Id, a.Login,
+            IsNpc = npcLogins.Contains(a.Login ?? ""),
+            LoggedIn = npcLogins.Contains(a.Login ?? "") || activeIds.Contains(a.Id)
+        }));
+    }
+
     [HttpPost("update-status")]
     [RequireRole("dispatcher")]
     public async Task<ActionResult<IEnumerable<Agent>>> UpdateAgentStatuses()
