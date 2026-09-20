@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SDN-VIGIA // Console de Dispatch</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="tv-frame"><div class="tv-screen"><div class="crt dispatch-crt">
+  <div class="scanlines" aria-hidden="true"></div>
+
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-mark">◈</span> SDN&#8209;VIGIA <span class="brand-sub">// CONSOLE DO DISPATCHER</span>
+    </div>
+    <div class="topbar-right">
+      <div class="statusline" id="statusline">SISTEMA ONLINE — <span id="agentCount">0</span> UNIDADES REGISTRADAS</div>
+      <div class="clock" id="sessionTimer" title="Tempo decorrido desde que esta tela foi aberta">0min 00s</div>
+      <div class="clock" id="clock">00:00:00</div>
+    </div>
+  </header>
+
+  <main class="dispatch-stage" aria-labelledby="map-title">
+    <section class="map-deck">
+      <div class="map-head"><h2 id="map-title">MAPA TÁTICO <span class="tag">SDN-VIGIA</span></h2><span class="map-readout">REDE DE VIGILÂNCIA ATIVA</span></div>
+      <div class="city-map" id="cityMap">
+      <img class="city-map-img" src="assets/mapa-cidade.png" alt="Mapa da cidade">
+      <div class="map-hq" style="left:51%; top:15%;">SDN</div>
+      <div id="mapMarkers"></div>
+      <div id="mapAgents"></div>
+        <div id="dispatchModalHost"></div>
+      </div>
+      <div class="map-legend">
+      <span><span class="dot-sample" style="background:var(--amber); box-shadow:0 0 4px var(--amber);"></span> Sede SDN</span>
+      <span><span class="dot-sample" style="background:var(--red);"></span> Missão pendente</span>
+      <span><span class="dot-sample" style="background:var(--amber);"></span> Missão em andamento</span>
+      <span><span class="dot-sample" style="background:var(--green-dim);"></span> Missão resolvida</span>
+      <span><span class="dot-sample" style="background:var(--green); box-shadow:0 0 4px var(--green);"></span> Unidade</span>
+      </div>
+      <section class="roster-strip-wrap" aria-label="Agentes disponíveis">
+        <ul id="agentList" class="roster-strip"><li class="empty-state">CARREGANDO ROSTER...</li></ul>
+      </section>
+    </section>
+
+    <aside class="queue-rail" aria-label="Ferramentas do dispatcher">
+      <button class="rail-button active" id="queueToggle" type="button" title="Fila de operações"><span>▣</span><b>FILA</b></button>
+      <!-- <button class="rail-button" id="manualToggle" type="button" title="Adicionar operação"><span>＋</span><b>NOVA</b></button> -->
+      <button class="rail-button" id="rosterToggle" type="button" title="Registrar agente"><span>⚙</span><b>REDE</b></button>
+    </aside>
+
+    <aside class="queue-drawer" id="queueDrawer" aria-labelledby="missions-title">
+      <div class="drawer-head"><h2 id="missions-title">FILA DE OPERAÇÕES <span class="tag">QUEUE</span></h2><button class="drawer-close" id="queueClose" type="button" aria-label="Fechar fila">×</button></div>
+      <div class="statusline">O pool é monitorado pelo cronômetro. Selecione uma operação para ver os requisitos e formar a equipe.</div>
+      <details class="advanced" id="poolDetails"><summary>STATUS DO POOL DE MISSÕES</summary><ul id="poolStatusList" class="agent-list"></ul></details>
+      <details class="advanced" id="manualMissionDetails"><summary>INSERIR MISSÃO MANUALMENTE</summary>
+        <form id="missionForm" class="inline-form stacked">
+          <input id="missionTitle" placeholder="CÓDIGO DA OPERAÇÃO" autocomplete="off" required>
+          <div class="form-row"><select id="missionType" aria-label="Tipo de operação"></select><select id="missionThreat" aria-label="Nível de ameaça"></select></div>
+          <input id="missionLocation" placeholder="LOCALIZAÇÃO" autocomplete="off"><button type="submit">ENVIAR PARA FILA</button>
+        </form>
+      </details>
+      <ul id="missionList" class="mission-list"><li class="empty-state">NENHUMA OPERAÇÃO NA FILA.</li></ul>
+    </aside>
+  </main>
+
+  <details class="advanced network-tools" id="agentTools"><summary>GERENCIAMENTO DE REDE</summary>
+        <form id="agentForm" class="inline-form stacked">
+          <div class="form-row">
+            <input id="agentName" placeholder="CODINOME" autocomplete="off" required>
+            <input id="agentSpec" placeholder="ESPECIALIDADE" autocomplete="off">
+          </div>
+          <div class="form-row">
+            <input id="agentHpMax" type="number" placeholder="PV MÁXIMO" min="1" autocomplete="off" required>
+          </div>
+          <div class="form-row">
+            <input id="agentCombate" type="number" placeholder="COMBATE" autocomplete="off" value="0">
+            <input id="agentMobilidade" type="number" placeholder="MOBILIDADE" autocomplete="off" value="0">
+            <input id="agentVigor" type="number" placeholder="VIGOR" autocomplete="off" value="0">
+            <input id="agentIntelecto" type="number" placeholder="INTELECTO" autocomplete="off" value="0">
+            <input id="agentCarisma" type="number" placeholder="CARISMA" autocomplete="off" value="0">
+          </div>
+          <input id="agentPericias" placeholder="PERÍCIAS (separadas por vírgula)" autocomplete="off">
+          <button type="submit">REGISTRAR AGENTE</button>
+        </form>
+  </details>
+
+  <section class="panel log dispatch-log" aria-labelledby="log-title">
+    <h2 id="log-title">CANAL DE RÁDIO <span class="tag live"><span class="dot"></span>AO VIVO</span></h2>
+    <div id="radioLog" class="radio-log">
+      <div class="log-entry system">[SISTEMA] Canal aberto. Aguardando atividade da rede.</div>
+    </div>
+  </section>
+
+</div></div></div>
+
+<script src="data.js"></script>
+<script src="mapa-data.js"></script>
+<script src="missoes-pool.js"></script>
+<script src="sync.js"></script>
+<script src="config.js"></script>
+<script src="dispatcher.js"></script>
+</body>
+</html>

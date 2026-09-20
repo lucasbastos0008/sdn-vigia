@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>SDN-VIGIA // Acesso</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body class="login-page">
+
+  <div class="tv-frame">
+    <div class="tv-screen">
+      <div class="crt login-crt">
+
+        <div class="scanlines" aria-hidden="true"></div>
+
+        <main class="login-container">
+
+          <section class="login-panel">
+
+            <div class="login-brand">
+              <div class="login-mark">◈</div>
+
+              <div class="login-title">
+                SDN-VIGIA
+              </div>
+
+              <div class="login-subtitle">
+                // SISTEMA DE DISPATCH E VIGILÂNCIA
+              </div>
+            </div>
+
+            <div class="login-divider"></div>
+
+            <div class="login-kicker">
+              TERMINAL DE ACESSO
+            </div>
+
+            <form id="loginForm" autocomplete="off">
+
+              <div class="login-field">
+                <label for="username">IDENTIFICAÇÃO</label>
+
+                <input
+                  type="text"
+                  id="username"
+                  name="username"
+                  placeholder="USUÁRIO OU CODINOME"
+                  autocomplete="off"
+                  spellcheck="false"
+                  required
+                >
+              </div>
+
+              <div class="login-field" id="passwordField">
+                <label for="password">CREDENCIAL</label>
+
+                <input
+                type="password"
+                id="password"
+                name="password"
+                placeholder="SENHA / NÃO NECESSÁRIA PARA AGENTES"
+                autocomplete="off"
+                >
+              </div>
+
+              <button
+                type="submit"
+                class="login-submit"
+                id="loginSubmit"
+              >
+                ACESSAR SISTEMA
+              </button>
+
+            </form>
+
+            <div
+              class="login-message"
+              id="loginMessage"
+              aria-live="polite"
+            ></div>
+
+            <div class="login-footer">
+              <span>SDN // REDE INTERNA</span>
+              <span id="loginClock">00:00:00</span>
+            </div>
+
+          </section>
+
+        </main>
+
+      </div>
+    </div>
+  </div>
+
+  <script src="data.js"></script>
+  <script src="sync.js"></script>
+  <script src="config.js"></script>
+  <script src="login.js"></script>
+
+</body>
+</html>

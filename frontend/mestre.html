@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SDN-VIGIA // Painel do Mestre</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="tv-frame"><div class="tv-screen"><div class="crt">
+  <div class="scanlines" aria-hidden="true"></div>
+
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-mark">◈</span> SDN&#8209;VIGIA <span class="brand-sub">// PAINEL DO MESTRE</span>
+    </div>
+    <div class="topbar-right">
+      <div class="statusline" id="statusline">
+        CRIADOR DE OPERAÇÕES — envia direto pro dispatcher e pros jogadores
+      </div>
+
+      <button
+        type="button"
+        class="linkbtn"
+        id="logoutMaster"
+      >
+        SAIR
+      </button>
+    </div>
+  </header>
+
+  <main class="grid" style="grid-template-columns: 1fr; gap: 14px;">
+
+    <form id="masterMissionForm">
+
+      <section class="panel" style="margin-bottom:14px;">
+        <h2>1. INFORMAÇÕES GERAIS <span class="tag">GERAL</span></h2>
+        <div class="inline-form stacked">
+          <input type="text" id="mTitulo" placeholder="CÓDIGO DA OPERAÇÃO (ex: OPERAÇÃO CINZA)" required>
+          <div class="form-row">
+            <select id="mTipo" aria-label="Tipo de operação"></select>
+            <select id="mRisco" aria-label="Nível de risco"></select>
+          </div>
+          <div class="form-row">
+            <input type="text" id="mLocal" placeholder="LOCALIZAÇÃO (ex: Universidade Central — Bloco C)" required>
+            <input type="number" id="mVagas" placeholder="VAGAS (2–4, opcional)" min="1" max="6">
+            <input type="number" id="mDelay" placeholder="MIN. ATÉ LIBERAÇÃO (0 = imediata)" min="0">
+            <input type="number" id="mDuracao" placeholder="MIN. ATÉ COMPLICAÇÃO (opcional)" min="1">
+          </div>
+        </div>
+      </section>
+
+      <section class="panel" style="margin-bottom:14px;">
+        <h2>2. CHAMADO DO CLIENTE <span class="tag">VISÍVEL PROS JOGADORES</span></h2>
+        <div class="inline-form stacked">
+          <input type="text" id="mSolicitante" placeholder="SOLICITANTE (ex: Segurança / @TorrCollege)" required>
+          <input type="text" id="mAvatar" placeholder="URL DO RETRATO DO SOLICITANTE (opcional)">
+          <textarea id="mMensagem" rows="2" placeholder="MENSAGEM DO CHAMADO (ex: Encontramos um esconderijo suspeito...)" required></textarea>
+        </div>
+      </section>
+
+      <section class="panel mission-requirements-panel" style="margin-bottom:14px;">
+        <h2>
+          3. REQUISITOS DA MISSÃO
+          <span class="tag">SÓ DISPATCHER</span>
+        </h2>
+
+        <div class="statusline mission-requirements-intro">
+          Defina o que precisa ser feito e quais perícias podem aumentar as chances da equipe.
+        </div>
+
+        <div class="mission-requirements-grid">
+
+          <!-- DETALHES -->
+          <div class="mission-requirements-block">
+            <div class="mission-requirements-title">
+              DETALHES DA OPERAÇÃO
+            </div>
+
+            <div class="statusline">
+              Um objetivo por linha.
+            </div>
+
+            <textarea
+              id="mRequisitos"
+              rows="5"
+              placeholder="Investigar o esconderijo na faculdade.
+      Decodificar as pistas encontradas.
+      Descobrir quem está por trás da operação."
+            ></textarea>
+          </div>
+
+          <!-- PERÍCIAS -->
+          <div class="mission-requirements-block">
+            <div class="mission-requirements-title">
+              PERÍCIAS RECOMENDADAS
+            </div>
+
+            <div class="statusline">
+              Selecione as perícias que podem ajudar nesta missão.
+            </div>
+
+            <div id="mPericias" class="mission-skills-grid"></div>
+          </div>
+
+        </div>
+      </section>
+
+      <section class="panel" style="margin-bottom:14px;">
+        <h2>4. EXIGÊNCIAS DE STATUS <span class="tag">RADAR</span></h2>
+        <div class="statusline" style="margin-bottom:8px;">Deixe em branco pra usar um perfil genérico calculado a partir do tipo da missão.</div>
+        <div class="form-row">
+          <input type="number" id="mCombate" placeholder="COMBATE" step="0.5">
+          <input type="number" id="mMobilidade" placeholder="MOBILIDADE" step="0.5">
+          <input type="number" id="mVigor" placeholder="VIGOR" step="0.5">
+          <input type="number" id="mIntelecto" placeholder="INTELECTO" step="0.5">
+          <input type="number" id="mCarisma" placeholder="CARISMA" step="0.5">
+        </div>
+      </section>
+
+      <section class="panel" style="margin-bottom:14px;">
+        <h2>5. COMPLICAÇÃO CUSTOMIZADA <span class="tag">OPCIONAL</span></h2>
+        <div class="statusline" style="margin-bottom:8px;">Se deixar tudo em branco, o sistema usa as 3 opções genéricas do tipo de missão. Preencha só o "texto" das opções que quiser usar (2 ou 3) — as em branco são ignoradas.</div>
+        <div class="inline-form stacked">
+          <input type="text" id="mCompTitulo" placeholder="TÍTULO DA COMPLICAÇÃO (ex: SISTEMA DE SEGURANÇA ATIVADO)">
+          <textarea id="mCompDescricao" rows="2" placeholder="DESCRIÇÃO DA COMPLICAÇÃO"></textarea>
+        </div>
+        <div id="compOptions"></div>
+      </section>
+
+      <button type="submit" class="amber" style="width:100%; font-size:14px; padding:12px;">🚀 ENVIAR OPERAÇÃO PARA O DISPATCHER</button>
+    </form>
+
+    <section class="panel log" aria-labelledby="feed-title" style="margin-top:14px;">
+      <h2 id="feed-title">CONFIRMAÇÕES <span class="tag live"><span class="dot"></span>ENVIO</span></h2>
+      <div id="sendLog" class="radio-log">
+        <div class="log-entry system">[SISTEMA] Aguardando envio de operações...</div>
+      </div>
+    </section>
+
+  </main>
+
+</div></div></div>
+
+<script src="data.js"></script>
+<script src="sync.js"></script>
+<script src="config.js"></script>
+<script src="mestre.js"></script>
+</body>
+</html>

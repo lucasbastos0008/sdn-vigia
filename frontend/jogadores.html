@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SDN-VIGIA // Tela dos Jogadores</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="tv-frame"><div class="tv-screen"><div class="crt dispatch-crt">
+  <div class="scanlines" aria-hidden="true"></div>
+
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-sub">// TELA DOS JOGADORES</span>
+    </div>
+    <div class="topbar-right">
+      <div class="statusline" id="statusline">SISTEMA ONLINE — <span id="agentCount">0</span> UNIDADES REGISTRADAS</div>
+      <div class="clock" id="sessionTimer" title="Tempo decorrido desde que esta tela foi aberta">0min 00s</div>
+      <div class="clock" id="clock">00:00:00</div>
+      <div class="player-identity" id="playerIdentity">
+      <span class="player-identity-label">UNIDADE</span>
+      <strong id="playerIdentityName">---</strong>
+      <span
+        class="player-identity-status offline"
+        id="playerIdentityStatus"
+      >
+        OFFLINE
+      </span>
+    </div>
+
+    <button
+      class="linkbtn"
+      id="logoutPlayer"
+      type="button"
+    >
+      ENCERRAR TURNO
+    </button>
+    </div>
+  </header>
+
+  <main class="dispatch-stage" aria-labelledby="map-title">
+    <section class="map-deck">
+      <div class="map-head"><h2 id="map-title">MAPA TÁTICO <span class="tag">SDN-VIGIA</span></h2><span class="map-readout">REDE DE VIGILÂNCIA ATIVA</span></div>
+      <div class="city-map" id="cityMap">
+        <img
+          class="city-map-img"
+          src="assets/mapa-cidade.png"
+          alt="Mapa da cidade"
+        >
+
+        <div class="map-hq" style="left:51%; top:15%;">
+          SDN
+        </div>
+
+        <div id="mapMarkers"></div>
+        <div id="mapAgents"></div>
+
+        <div id="playerDispatchModalHost"></div>
+      </div>
+      <div class="map-legend">
+      <span><span class="dot-sample" style="background:var(--amber); box-shadow:0 0 4px var(--amber);"></span> Sede SDN</span>
+      <span><span class="dot-sample" style="background:var(--red);"></span> Missão pendente</span>
+      <span><span class="dot-sample" style="background:var(--amber);"></span> Missão em andamento</span>
+      <span><span class="dot-sample" style="background:var(--green-dim);"></span> Missão resolvida</span>
+      <span><span class="dot-sample" style="background:var(--green); box-shadow:0 0 4px var(--green);"></span> Unidade</span>
+      </div>
+      <section class="roster-strip-wrap" aria-label="Agentes disponíveis">
+        <ul id="agentList" class="roster-strip"><li class="empty-state">CARREGANDO ROSTER...</li></ul>
+      </section>
+    </section>
+  </main>
+
+  <section class="panel log dispatch-log" aria-labelledby="log-title">
+    <h2 id="log-title">CANAL DE RÁDIO <span class="tag live"><span class="dot"></span>AO VIVO</span></h2>
+    <div id="radioLog" class="radio-log">
+      <div class="log-entry system">[SISTEMA] Canal aberto. Aguardando atividade da rede.</div>
+    </div>
+  </section>
+
+</div></div></div>
+
+<script src="data.js"></script>
+<script src="mapa-data.js"></script>
+<script src="sync.js"></script>
+<script src="config.js"></script>
+<script src="jogadores.js"></script>
+</body>
+</html>
