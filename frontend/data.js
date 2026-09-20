@@ -285,8 +285,7 @@ function healthStatus(agent) {
 
 function combinedStatus(agent) {
   if (
-    typeof sdnIsAgentLoggedIn === "function" &&
-    !sdnIsAgentLoggedIn(agent.login)
+    agent.loggedIn !== true
   ) {
     return "offline";
   }
