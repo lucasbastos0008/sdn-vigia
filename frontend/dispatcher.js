@@ -744,6 +744,7 @@ async function fetchAvailableMissions() {
           ${photoHtml}
           <div class="roster-card-name">${escapeHtml(a.name)}</div>
           <div class="roster-card-hp">${a.hpCurrent}/${a.hpMax} PV</div>
+          <button type="button" class="secondary" style="font-size:10px;padding:4px;width:100%" data-action="view-profile" data-id="${a.id}">FICHA</button>
           <details>
             <summary>detalhes</summary>
             <div class="agent-spec" style="margin-bottom:4px;">${escapeHtml(a.especialidade)}</div>
@@ -1770,13 +1771,15 @@ async function fetchAvailableMissions() {
 
     on("agentList", "click", (e) => {
       const card = e.target.closest(".roster-card[data-agent-id]");
-      if (card && dispatchModal && !e.target.closest("button, input, summary, details")) {
-        selectModalAgent(Number(card.dataset.agentId));
+      if (card && !e.target.closest("button, input, summary, details")) {
+        if (dispatchModal) selectModalAgent(Number(card.dataset.agentId));
+        else showAgentProfile(agents.find(a => a.id === Number(card.dataset.agentId)));
         return;
       }
       const btn = e.target.closest("button[data-action]");
       if (!btn) return;
       const id = Number(btn.dataset.id);
+      if (btn.dataset.action === "view-profile") showAgentProfile(agents.find(a => a.id === id));
       if (btn.dataset.action === "apply-hp") {
         const input = document.querySelector(`[data-hp-input="${id}"]`);
         if (input) adjustHp(id, Number(input.value));
